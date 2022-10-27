@@ -15,7 +15,12 @@ defmodule TicTacToeChecker do
   @impl GenServer
   def init(%{board: board} = init_arg) do
     GenServer.cast(TicTacToeChecker, {:launch, {0, 0}})
-    {:ok, %{init_arg | board: Enum.map(board, &Enum.map(&1, fn x -> {x, nil} end))}}
+
+    if valid?(board) do
+      {:ok, %{init_arg | board: Enum.map(board, &Enum.map(&1, fn x -> {x, nil} end))}}
+    else
+      {:stop, :invalid_board}
+    end
   end
 
   @impl GenServer
@@ -57,7 +62,7 @@ defmodule TicTacToeChecker do
   @impl GenServer
   def handle_cast({:done, %{id: id, values: values}}, state) do
     state = %{state | results: [{id, Enum.reverse(values)} | state.results]}
-    IO.inspect({{id, values}, state}, label: "Done")
+    IO.inspect(state, label: "Done")
     {:noreply, state}
   end
 
@@ -65,6 +70,10 @@ defmodule TicTacToeChecker do
   def handle_call({:move, %{x: x, y: y, direction: direction}}, _from, state) do
     {x, y} = redirect({x, y}, direction)
     {:reply, {get(state.board, {x, y}), {x, y}}, state}
+  end
+
+  defp valid?(board) do
+    board |> List.flatten() |> Enum.frequencies() |> Map.take([1, 2]) |> Map.values() |> Enum.reduce(&Kernel.-/2) |> abs() |> Kernel.<=(1)
   end
 
   defp get(board, {x, y}) when x >= 0 and y >= 0 do

@@ -24,7 +24,7 @@ defmodule TicTacToeChecker.MixProject do
   defp deps do
     [
       {:telemetria, "~> 0.12"},
-      {:siblings, "~> 0.8"}
+      {:siblings, "~> 0.9"}
     ]
   end
 end

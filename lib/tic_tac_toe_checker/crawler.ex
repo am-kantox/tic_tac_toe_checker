@@ -22,14 +22,11 @@ defmodule TicTacToeChecker.Crawler do
 
   @impl Finitomata
   def on_transition(:idle, :init!, _, payload) do
-    IO.inspect(payload, label: "init!")
     {:ok, :ready, payload}
   end
 
   @impl Finitomata
   def on_transition(:ready, :move!, _, payload) do
-    IO.inspect(payload, label: "move!")
-
     TicTacToeChecker
     |> GenServer.call({:move, payload})
     |> case do
