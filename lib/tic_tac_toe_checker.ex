@@ -60,10 +60,13 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
-  def handle_cast({:done, %{id: id, values: values}}, state) do
-    state = %{state | results: [{id, Enum.reverse(values)} | state.results]}
-    IO.inspect(state, label: "Done")
-    {:noreply, state}
+  def handle_cast({:done, moves}, state) do
+    {:noreply, update_state(moves, state)}
+  end
+
+  @impl GenServer
+  def handle_call(:state, _from, state) do
+    {:reply, state, Map.put(state, :reported, true)}
   end
 
   @impl GenServer
@@ -73,7 +76,28 @@ defmodule TicTacToeChecker do
   end
 
   defp valid?(board) do
-    board |> List.flatten() |> Enum.frequencies() |> Map.take([1, 2]) |> Map.values() |> Enum.reduce(&Kernel.-/2) |> abs() |> Kernel.<=(1)
+    board
+    |> List.flatten()
+    |> Enum.frequencies()
+    |> Map.take([1, 2])
+    |> Map.values()
+    |> Enum.reduce(&Kernel.-/2)
+    |> abs()
+    |> Kernel.<=(1)
+  end
+
+  defp update_state(%{values: values}, state) do
+    values =
+      values
+      |> Enum.chunk_every(3, 1)
+      |> Enum.filter(&match?([{_, _, v}, {_, _, v}, {_, _, v}] when v != 0, &1))
+      |> Enum.map(fn moves ->
+        Enum.reduce(moves, %{player: nil, cells: []}, fn {x, y, v}, acc ->
+          %{acc | player: v, cells: [{x, y} | acc.cells]}
+        end)
+      end)
+
+    %{state | results: [values | state.results]}
   end
 
   defp get(board, {x, y}) when x >= 0 and y >= 0 do
