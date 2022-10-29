@@ -34,6 +34,8 @@ defmodule TicTacToeChecker.Crawler do
         if length(payload.values) >= @win_size,
           do: GenServer.cast(TicTacToeChecker, {:done, payload})
 
+        Process.sleep(100)
+
         {:ok, :done, payload}
 
       {{v, _}, {x, y}} ->

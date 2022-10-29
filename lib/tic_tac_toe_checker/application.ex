@@ -7,12 +7,15 @@ defmodule TicTacToeChecker.Application do
 
   @board [[0, 1, 0], [0, 1, 2], [0, 1, 2]]
 
-  @impl true
+  @impl Application
   def start(_type, _args) do
     Logger.configure(level: :warn)
 
     children = [
-      {Siblings, callbacks: [on_enter: &TicTacToeChecker.Application.maybe_terminate/1]},
+      Siblings.child_spec(
+        name: Siblings,
+        die_with_children: &TicTacToeChecker.Application.report_result/0
+      ),
       {TicTacToeChecker, board: @board}
     ]
 
@@ -22,41 +25,38 @@ defmodule TicTacToeChecker.Application do
     Supervisor.start_link(children, opts)
   end
 
-  def maybe_terminate(_) do
-    Task.start(fn ->
-      if Siblings.state().payload[:workers] == %{} do
-        TicTacToeChecker
-        |> GenServer.call(:state)
+  @impl Application
+  def prep_stop(state) do
+    IO.inspect(state)
+    Process.sleep(1_000)
+  end
+
+  def report_result do
+    TicTacToeChecker
+    |> GenServer.call(:state)
+    |> case do
+      %{
+        board: _board,
+        id: attempts,
+        results: results
+      } ->
+        IO.puts("\n\nFinished. Examined #{attempts} paths.")
+
+        results
+        |> List.flatten()
         |> case do
-          %{reported: true} ->
-            :ok
+          [] ->
+            "No winner."
 
-          %{
-            board: _board,
-            id: attempts,
-            results: results
-          } ->
-            IO.puts("Finished. Examined #{attempts} paths.")
+          [%{cells: cells, player: player}] ->
+            "Player ##{player} wins at " <> inspect(cells) <> "."
 
-            results
-            |> List.flatten()
-            |> case do
-              [] ->
-                "No winner."
-
-              [%{cells: cells, player: player}] ->
-                "Player ##{player} wins at " <> inspect(cells) <> "."
-
-              multi ->
-                "Multiple winners :( " <> inspect(multi) <> "."
-            end
-            |> IO.puts()
-
-            IO.puts("Bye.")
-
-            Application.stop(:tic_tac_toe_checker)
+          multi ->
+            "Multiple winners :( " <> inspect(multi) <> "."
         end
-      end
-    end)
+        |> IO.puts()
+
+        IO.puts("Bye.\n")
+    end
   end
 end
