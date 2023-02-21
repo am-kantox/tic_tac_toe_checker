@@ -26,7 +26,7 @@ defmodule TicTacToeChecker.MixProject do
     [
       {:telemetria, "~> 0.12"},
       {:siblings, "~> 0.9"},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
