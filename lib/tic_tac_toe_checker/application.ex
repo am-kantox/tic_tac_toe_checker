@@ -5,8 +5,6 @@ defmodule TicTacToeChecker.Application do
 
   use Application
 
-  @board [[0, 1, 0], [0, 1, 2], [0, 1, 2]]
-
   @impl Application
   def start(_type, _args) do
     Logger.configure(level: :warn)
@@ -15,8 +13,7 @@ defmodule TicTacToeChecker.Application do
       Siblings.child_spec(
         name: Siblings,
         die_with_children: &TicTacToeChecker.Application.report_result/0
-      ),
-      {TicTacToeChecker, board: @board}
+      )
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -31,6 +28,7 @@ defmodule TicTacToeChecker.Application do
     Process.sleep(1_000)
   end
 
+  @spec report_result() :: :ok
   def report_result do
     TicTacToeChecker
     |> GenServer.call(:state)
