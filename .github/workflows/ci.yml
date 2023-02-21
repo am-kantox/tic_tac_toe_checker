@@ -24,4 +24,4 @@ jobs:
       - name: "Compile and run Dialyzer"
         run: |
           mix do deps.get, deps.compile, compile
-          mix dialyzer
+          mix ci
