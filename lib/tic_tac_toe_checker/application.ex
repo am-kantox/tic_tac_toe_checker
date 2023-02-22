@@ -23,11 +23,7 @@ defmodule TicTacToeChecker.Application do
   end
 
   @impl Application
-  def prep_stop(state) do
-    state
-    |> inspect()
-    |> IO.puts()
-
+  def prep_stop(_state) do
     Process.sleep(1_000)
   end
 

@@ -9,7 +9,12 @@ defmodule TicTacToeChecker.MixProject do
       compilers: [:telemetria | Mix.compilers()],
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      dialyzer: [
+        plt_core_path: ".dialyzer/",
+        plt_file: {:no_warn, ".dialyzer/dialyzer.plt"},
+        ignore_warnings: ".dialyzer/ignore.exs"
+      ]
     ]
   end
 

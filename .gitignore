@@ -24,3 +24,4 @@ tic_tac_toe_checker-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+/.dialyzer/*.plt*

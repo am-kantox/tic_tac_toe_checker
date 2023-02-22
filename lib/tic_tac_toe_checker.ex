@@ -8,8 +8,9 @@ defmodule TicTacToeChecker do
 
   @type row() :: [non_neg_integer()]
   @type board() :: [row()]
-  @type state() :: %{board: board(), id: non_neg_integer(), results: list()}
   @type cell() :: {non_neg_integer(), non_neg_integer()}
+  @type result() :: [[] | [%{cells: [cell()], player: non_neg_integer()}]]
+  @type state() :: %{board: board(), id: non_neg_integer(), results: result()}
   @type direction() :: :right | :down | :diag_r | :diag_l
 
   @directions ~w|right down diag_r diag_l|a
@@ -67,7 +68,12 @@ defmodule TicTacToeChecker do
 
   @impl GenServer
   def handle_call(:state, _from, state) do
-    {:stop, :normal, state, Map.put(state, :reported, true)}
+    {:reply, state, Map.put(state, :reported, true)}
+  end
+
+  @impl GenServer
+  def handle_call(:stop, _from, state) do
+    {:stop, :normal, state, Map.put_new(state, :reported, true)}
   end
 
   @impl GenServer
