@@ -43,7 +43,7 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
-  @spec handle_cast({:launch, coordinates()}, %{board: board()}) :: {:noreply, atom() | map()}
+  @spec handle_cast({:launch, coordinates()} | {:done, [coordinates()]}, %{board: board()}) :: {:noreply, atom() | map()}
   def handle_cast({:launch, {x, y}}, state) do
     state.board
     |> get({x, y})
