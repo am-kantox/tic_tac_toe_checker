@@ -8,7 +8,6 @@ defmodule TicTacToeChecker.Crawler do
   @win_size 3
 
   @impl Siblings.Worker
-  @spec perform(any(), any(), any()) :: :noop
   def perform(_current, _id, _payload) do
     :noop
   end
@@ -22,11 +21,6 @@ defmodule TicTacToeChecker.Crawler do
   use Finitomata, fsm: @fsm, auto_terminate: true, impl_for: [:on_transition]
 
   @impl Finitomata
-  @spec on_transition(:idle | :ready, :init! | :move!, any(), any) ::
-          {:error,
-           {:undefined_transition, {atom, atom}}
-           | {:ambiguous_transition, {atom, atom}, [atom, ...]}}
-          | {:ok, atom, any}
   def on_transition(:idle, :init!, _, payload) do
     {:ok, :ready, payload}
   end

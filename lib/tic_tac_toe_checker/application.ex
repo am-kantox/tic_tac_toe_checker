@@ -3,6 +3,7 @@ defmodule TicTacToeChecker.Application do
   # for more information on OTP Applications
   @moduledoc false
 
+  require Logger
   use Application
 
   @board [[0, 1, 0], [0, 1, 2], [0, 1, 2]]
@@ -29,7 +30,7 @@ defmodule TicTacToeChecker.Application do
   @impl Application
   @spec prep_stop(any) :: :ok
   def prep_stop(state) do
-    IO.puts(state)
+    Logger.info(state)
     Process.sleep(1_000)
   end
 

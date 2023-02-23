@@ -43,7 +43,8 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
-  @spec handle_cast({:launch, coordinates()} | {:done, [coordinates()]}, %{board: board()}) :: {:noreply, atom() | map()}
+  @spec handle_cast({:launch, coordinates()} | {:done, [coordinates()]}, %{board: board()}) ::
+          {:noreply, atom() | map()}
   def handle_cast({:launch, {x, y}}, state) do
     state.board
     |> get({x, y})
@@ -80,22 +81,18 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
-  @spec handle_cast({:done, list(coordinates())}, %{board: board()}) ::
-          {:noreply, map()}
   def handle_cast({:done, moves}, state) do
     {:noreply, update_state(moves, state)}
   end
 
   @impl GenServer
-  @spec handle_call(:state, any(), map()) ::
+  @spec handle_call(:state | {:move, map()}, any(), map()) ::
           {:reply, %{board: board()}, map()}
   def handle_call(:state, _from, state) do
     {:reply, state, Map.put(state, :reported, true)}
   end
 
   @impl GenServer
-  @spec handle_call({:move, map()}, any(), map()) ::
-          {:reply, map(), map()}
   def handle_call({:move, %{x: x, y: y, direction: direction}}, _from, state) do
     {x, y} = redirect({x, y}, direction)
     {:reply, {get(state.board, {x, y}), {x, y}}, state}
