@@ -8,6 +8,7 @@ defmodule TicTacToeChecker.Application do
   @board [[0, 1, 0], [0, 1, 2], [0, 1, 2]]
 
   @impl Application
+  @spec start(any, any) :: none()
   def start(_type, _args) do
     Logger.configure(level: :warn)
 
@@ -26,11 +27,13 @@ defmodule TicTacToeChecker.Application do
   end
 
   @impl Application
+  @spec prep_stop(any) :: :ok
   def prep_stop(state) do
-    IO.inspect(state)
+    IO.puts(state)
     Process.sleep(1_000)
   end
 
+  @spec report_result :: :ok
   def report_result do
     TicTacToeChecker
     |> GenServer.call(:state)

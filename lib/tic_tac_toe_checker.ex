@@ -4,15 +4,34 @@ defmodule TicTacToeChecker do
   Starts as `#{__MODULE__}.start_link(board: [[...]])` and returns the result of the board.
   """
 
+  @doc ~S"""
+  Defines the winner for a given TicTacToe board.
+
+  ## Examples
+
+      iex> %{id: 36, results: results} = GenServer.call(Process.whereis(TicTacToeChecker), :state)
+      iex> [%{cells: [{0, 1}, {1, 1}, {2, 1}], player: 1}] = Enum.find(results, fn x -> length(x) > 0 end)
+      [%{cells: [{0, 1}, {1, 1}, {2, 1}], player: 1}]
+
+  """
+
+  @type board() :: list(list(non_neg_integer()))
+  @type on_start() ::
+          {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | term()}
+  @type coordinates() :: {x :: non_neg_integer(), y :: non_neg_integer()}
+
   use GenServer
 
   @directions ~w|right down diag_r diag_l|a
 
+  @spec start_link(board: board()) :: on_start()
   def start_link(opts) do
     GenServer.start_link(__MODULE__, %{board: opts[:board], id: 0, results: []}, name: __MODULE__)
   end
 
   @impl GenServer
+  @spec init(%{:board => board()}) ::
+          {:ok, %{:board => board()}} | {:stop, :invalid_board}
   def init(%{board: board} = init_arg) do
     GenServer.cast(TicTacToeChecker, {:launch, {0, 0}})
 
@@ -24,6 +43,7 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
+  @spec handle_cast({:launch, coordinates()}, %{board: board()}) :: {:noreply, atom() | map()}
   def handle_cast({:launch, {x, y}}, state) do
     state.board
     |> get({x, y})
@@ -60,16 +80,22 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
+  @spec handle_cast({:done, list(coordinates())}, %{board: board()}) ::
+          {:noreply, map()}
   def handle_cast({:done, moves}, state) do
     {:noreply, update_state(moves, state)}
   end
 
   @impl GenServer
+  @spec handle_call(:state, any(), map()) ::
+          {:reply, %{board: board()}, map()}
   def handle_call(:state, _from, state) do
     {:reply, state, Map.put(state, :reported, true)}
   end
 
   @impl GenServer
+  @spec handle_call({:move, map()}, any(), map()) ::
+          {:reply, map(), map()}
   def handle_call({:move, %{x: x, y: y, direction: direction}}, _from, state) do
     {x, y} = redirect({x, y}, direction)
     {:reply, {get(state.board, {x, y}), {x, y}}, state}
