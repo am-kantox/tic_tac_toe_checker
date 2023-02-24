@@ -4,6 +4,21 @@ defmodule TicTacToeChecker do
   Starts as `#{__MODULE__}.start_link(board: [[...]])` and returns the result of the board.
   """
 
+  @doc ~S"""
+  Defines the winner for a given TicTacToe board.
+
+  ## Examples
+
+      iex> %{id: 36, results: results} = GenServer.call(Process.whereis(TicTacToeChecker), :state)
+      iex> [%{cells: [{0, 1}, {1, 1}, {2, 1}], player: 1}] = Enum.find(results, fn x -> length(x) > 0 end)
+      [%{cells: [{0, 1}, {1, 1}, {2, 1}], player: 1}]
+
+  """
+
+  @type on_start() ::
+          {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | term()}
+  @type coordinates() :: {x :: non_neg_integer(), y :: non_neg_integer()}
+
   use GenServer
 
   @type row() :: [non_neg_integer()]
@@ -21,6 +36,8 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
+  @spec init(%{:board => board()}) ::
+          {:ok, %{:board => board()}} | {:stop, :invalid_board}
   def init(%{board: board} = init_arg) do
     GenServer.cast(TicTacToeChecker, {:launch, {0, 0}})
 
@@ -32,6 +49,8 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
+  @spec handle_cast({:launch, coordinates()} | {:done, [coordinates()]}, %{board: board()}) ::
+          {:noreply, atom() | map()}
   def handle_cast({:launch, {x, y}}, state) do
     state.board
     |> get({x, y})
@@ -67,6 +86,8 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
+  @spec handle_call(:state | {:move, map()}, any(), map()) ::
+          {:reply, %{board: board()}, map()}
   def handle_call(:state, _from, state) do
     {:reply, state, Map.put(state, :reported, true)}
   end

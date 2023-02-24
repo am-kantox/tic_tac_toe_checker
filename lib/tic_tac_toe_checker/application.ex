@@ -3,6 +3,7 @@ defmodule TicTacToeChecker.Application do
   # for more information on OTP Applications
   @moduledoc false
 
+  require Logger
   use Application
 
   @impl Application
@@ -23,11 +24,13 @@ defmodule TicTacToeChecker.Application do
   end
 
   @impl Application
-  def prep_stop(_state) do
+  @spec prep_stop(any) :: :ok
+  def prep_stop(state) do
+    Logger.info(state)
     Process.sleep(1_000)
   end
 
-  @spec report_result() :: :ok
+  @spec report_result :: :ok
   def report_result do
     TicTacToeChecker
     |> GenServer.call(:state)
