@@ -3,6 +3,9 @@ defmodule TicTacToeCheckerTest do
   doctest TicTacToeChecker
 
   test "start/0" do
+    board = [[0, 1, 2], [0, 1, 2], [0, 1, 0]]
+    TicTacToeChecker.start_link(board: board)
+    
     pid = Process.whereis(TicTacToeChecker)
 
     assert %{id: 36, results: results} = GenServer.call(pid, :state)
