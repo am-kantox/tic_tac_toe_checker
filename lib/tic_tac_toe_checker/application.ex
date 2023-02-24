@@ -7,7 +7,6 @@ defmodule TicTacToeChecker.Application do
   use Application
 
   @impl Application
-  @spec start(any, any) :: none()
   def start(_type, _args) do
     Logger.configure(level: :warn)
 

@@ -15,7 +15,6 @@ defmodule TicTacToeChecker do
 
   """
 
-  @type board() :: list(list(non_neg_integer()))
   @type on_start() ::
           {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | term()}
   @type coordinates() :: {x :: non_neg_integer(), y :: non_neg_integer()}

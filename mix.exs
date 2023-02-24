@@ -29,8 +29,6 @@ defmodule TicTacToeChecker.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:telemetria, "~> 0.12"},
       {:siblings, "~> 0.9"},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
