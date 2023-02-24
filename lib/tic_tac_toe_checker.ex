@@ -22,9 +22,16 @@ defmodule TicTacToeChecker do
 
   use GenServer
 
+  @type row() :: [non_neg_integer()]
+  @type board() :: [row()]
+  @type cell() :: {non_neg_integer(), non_neg_integer()}
+  @type result() :: [[] | [%{cells: [cell()], player: non_neg_integer()}]]
+  @type state() :: %{board: board(), id: non_neg_integer(), results: result()}
+  @type direction() :: :right | :down | :diag_r | :diag_l
+
   @directions ~w|right down diag_r diag_l|a
 
-  @spec start_link(board: board()) :: on_start()
+  @spec start_link(opts :: [{:board, board()}]) :: GenServer.on_start()
   def start_link(opts) do
     GenServer.start_link(__MODULE__, %{board: opts[:board], id: 0, results: []}, name: __MODULE__)
   end
@@ -60,13 +67,7 @@ defmodule TicTacToeChecker do
               Siblings.start_child(
                 TicTacToeChecker.Crawler,
                 id,
-                %{
-                  id: id,
-                  x: x,
-                  y: y,
-                  direction: direction,
-                  values: [{x, y, v}]
-                },
+                %{id: id, x: x, y: y, direction: direction, values: [{x, y, v}]},
                 interval: 100_000
               )
 
@@ -93,11 +94,17 @@ defmodule TicTacToeChecker do
   end
 
   @impl GenServer
+  def handle_call(:stop, _from, state) do
+    {:stop, :normal, state, Map.put_new(state, :reported, true)}
+  end
+
+  @impl GenServer
   def handle_call({:move, %{x: x, y: y, direction: direction}}, _from, state) do
     {x, y} = redirect({x, y}, direction)
     {:reply, {get(state.board, {x, y}), {x, y}}, state}
   end
 
+  @spec valid?(board :: __MODULE__.board()) :: boolean()
   defp valid?(board) do
     board
     |> List.flatten()
@@ -109,6 +116,7 @@ defmodule TicTacToeChecker do
     |> Kernel.<=(1)
   end
 
+  @spec update_state(%{values: list()}, state :: state()) :: state()
   defp update_state(%{values: values}, state) do
     values =
       values
@@ -123,15 +131,19 @@ defmodule TicTacToeChecker do
     %{state | results: [values | state.results]}
   end
 
+  @spec get(board :: board(), cell()) ::
+          {non_neg_integer(), nil} | nil
   defp get(board, {x, y}) when x >= 0 and y >= 0 do
     get_in(board, [Access.at(x), Access.at(y)])
   end
 
   defp get(_board, _x_y), do: nil
 
+  @spec set(board :: board(), cell(), ids :: list()) :: board()
   defp set(board, {x, y}, ids),
     do: update_in(board, [Access.at(x), Access.at(y)], fn {v, nil} -> {v, ids} end)
 
+  @spec redirect(cell(), direction()) :: cell()
   defp redirect({x, y}, :right), do: {x + 1, y}
   defp redirect({x, y}, :down), do: {x, y + 1}
   defp redirect({x, y}, :diag_r), do: {x + 1, y + 1}

@@ -6,8 +6,6 @@ defmodule TicTacToeChecker.Application do
   require Logger
   use Application
 
-  @board [[0, 1, 0], [0, 1, 2], [0, 1, 2]]
-
   @impl Application
   @spec start(any, any) :: none()
   def start(_type, _args) do
@@ -17,8 +15,7 @@ defmodule TicTacToeChecker.Application do
       Siblings.child_spec(
         name: Siblings,
         die_with_children: &TicTacToeChecker.Application.report_result/0
-      ),
-      {TicTacToeChecker, board: @board}
+      )
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

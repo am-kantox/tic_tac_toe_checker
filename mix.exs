@@ -8,7 +8,13 @@ defmodule TicTacToeChecker.MixProject do
       elixir: "~> 1.14",
       compilers: [:telemetria | Mix.compilers()],
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases(),
+      dialyzer: [
+        plt_core_path: ".dialyzer/",
+        plt_file: {:no_warn, ".dialyzer/dialyzer.plt"},
+        ignore_warnings: ".dialyzer/ignore.exs"
+      ]
     ]
   end
 
@@ -26,7 +32,15 @@ defmodule TicTacToeChecker.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:telemetria, "~> 0.12"},
-      {:siblings, "~> 0.9"}
+      {:siblings, "~> 0.9"},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      ci: ["format --check-formatted", "credo --strict", "dialyzer"]
     ]
   end
 end
